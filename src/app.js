@@ -13,6 +13,7 @@ var opcUaBridge = new OpcUaBridge();
 opcUaBridge.onValueChanged = (name, value) => { sendUpdates(opcUaBridge.thing); };
 opcUaBridge
     .connect({ url: 'opc.tcp://PI-IAS-005:4840' })
+    //.connect({ url: 'opc.tcp://192.168.10.184:4840' })
     .then((bridge) => {
         console.log("Dun?");
     })
@@ -22,7 +23,8 @@ const devices = [opcUaBridge];
 
 //Define routes
 app.get('/api/devices', (req,res) => {
-    res.send(devices);
+    var things = devices.map(d => d.thing); 
+    res.send(things);
 });
 
 app.ws('/api/live', (ws, req) => {
