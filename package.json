@@ -15,6 +15,7 @@
     "node-opcua": "^0.7.3",
     "request": "^2.88.0",
     "request-promise": "^4.2.4",
+    "tplink-smartplug-node": "^1.1.0",
     "ws": "^7.0.1"
   },
   "devDependencies": {

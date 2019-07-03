@@ -3,7 +3,7 @@ const expressWs = require('express-ws');
 var app = express();
 var wss = expressWs(app).getWss();
 const OpcUaBridge = require('./Bridges/OPCUA');
-
+const TPLinkBridge = require('./Bridges/TPLink');
 
 const sendUpdates = function (thing) {
     wss.clients.forEach(function each(ws) { ws.send(JSON.stringify(thing)); });
@@ -15,11 +15,19 @@ opcUaBridge
     .connect({ url: 'opc.tcp://PI-IAS-005:4840' })
     //.connect({ url: 'opc.tcp://192.168.10.184:4840' })
     .then((bridge) => {
-        console.log("Dun?");
+        console.log("Connected to OPCUA");
     })
-    .catch((err) => { console.error(err); });
+    .catch((err) => console.error(err));
+var tpLinkBridge = new TPLinkBridge();
+tpLinkBridge.onValueChanged = (name, value) => { sendUpdates(tpLinkBridge.thing); };
+tpLinkBridge
+    .connect({url: '192.168.10.159'})
+    .then((bridge)=>{
+        console.log("Connected to TPLink");
+    })
+    .catch((err)=> console.log(error));
 
-const devices = [opcUaBridge];
+const devices = [opcUaBridge, tpLinkBridge];
 
 //Define routes
 app.get('/api/devices', (req,res) => {
