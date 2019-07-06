@@ -4,6 +4,7 @@ var app = express();
 var wss = expressWs(app).getWss();
 const OpcUaBridge = require('./Bridges/OPCUA');
 const TPLinkBridge = require('./Bridges/TPLink');
+const MqttProxyBridge = require('./Bridges/MQTTProxy');
 
 const sendUpdates = function (thing) {
     wss.clients.forEach(function each(ws) { ws.send(JSON.stringify(thing)); });
@@ -25,9 +26,17 @@ tpLinkBridge
     .then((bridge)=>{
         console.log("Connected to TPLink");
     })
-    .catch((err)=> console.log(error));
+    .catch((err)=> console.error(err));
+var mqttProxyBridge = new MqttProxyBridge();
+mqttProxyBridge.onValueChanged = (name, value) => { sendUpdates(mqttProxyBridge.thing); };
+mqttProxyBridge
+    .connect({ api_url: 'http://192.168.10.194:8080', ws_url: 'ws://192.168.10.194:9090'})
+    .then((bridge)=> {
+        console.log("Connected to MqttProxy");
+    })
+    .catch((err)=>console.error(err));
 
-const devices = [opcUaBridge, tpLinkBridge];
+const devices = [opcUaBridge, tpLinkBridge, mqttProxyBridge];
 
 //Define routes
 app.get('/api/devices', (req,res) => {
