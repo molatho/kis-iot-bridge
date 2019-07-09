@@ -10,6 +10,7 @@ module.exports = class TPLinkBridge  {
         this.onValueChanged = null;
 
         this._url = '';
+        this._interval = null;
 
         this.thing = new Thing();
         this.thing.name = 'Power Plug';
@@ -49,6 +50,23 @@ module.exports = class TPLinkBridge  {
                         resolve(this.thing);
                     });
                 });
+                this._interval = setInterval(()=> {
+                    var tp = new TPLink(this._url, (err) => {
+                        if (err) return reject(err);
+                        this.thing.attributes[0].value = this._url;
+    
+                        tp.getInfo((parsed, resp) => {
+                            if (!parsed) return reject(new Error("Could not parse getInfo"));
+                            this.thing.attributes[1].value = resp.system.get_sysinfo.sw_ver;
+                            this.thing.attributes[2].value = resp.system.get_sysinfo.model;
+                            var val = resp.system.get_sysinfo.relay_state == 1 ? 'On' : 'Off';
+                            if (this.thing.attributes[3].value != val){
+                                this.thing.attributes[3].value = val;
+                                if (this.onValueChanged) this.onValueChanged(this.thing.attributes[3].name, 'On');
+                            }
+                        });
+                    });
+                }, 500);
             } catch (err) {
                 reject(err);
             }
