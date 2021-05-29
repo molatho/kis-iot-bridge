@@ -16,7 +16,7 @@
     "request": "^2.88.0",
     "request-promise": "^4.2.4",
     "tplink-smartplug-node": "^1.1.0",
-    "ws": "^7.0.1"
+    "ws": "^7.4.6"
   },
   "devDependencies": {
     "eslint": "^6.0.0"
